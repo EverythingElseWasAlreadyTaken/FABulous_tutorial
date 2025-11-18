@@ -84,13 +84,13 @@
       - If we stick to the same BEL interface, that is all it takes to support a custom tile (**for instance something tailored to ML inference**).
       - Otherwise, the interfacing takes a few manual steps that are already automated.
         A tutorial for that is in the documentation:
-        [FABuluos Fabric Automation](https://fabulous.readthedocs.io/en/latest/user_guide/building_doc/fabric_automation.html)
+        [FABulous Fabric Automation](https://fabulous.readthedocs.io/en/latest/user_guide/building_doc/fabric_automation.html)
 
 ---
 
 ## 📝 Homework
 
-1.  Write a wrapper for your custom primitive and instantiate that in `sequential_16bit_en.v` (located in the `/User_design` sub folder).
+1.  Write a wrapper for your custom primitive and instantiate that in `sequential_16bit_en.v` (located in the `/user_design` sub folder).
 2.  You can compile that inside FABulous with `run_FABulous_bitstream`.
 
 ### 💡 Example Reference: DSP Primitive Instantiation
