@@ -32,8 +32,8 @@
 4.  **Build the Fabric (FABulous Shell):**
     - Start your project with the FABulous shell:
       ```bash
-      cd demo
-      FABulous start
+      cd demo # go to your demo project folder
+      FABulous start # start the FABulous shell
       ```
     - Follow the steps displayed inside FABulous (starting with `load_fabric`).
       - _Tip:_ Play with `<TAB>` when entering commands; you can also fetch previous commands using the `<UP>` key.
@@ -99,4 +99,4 @@ An example that instantiates the DSP primitive is provided in the GitHub reposit
 
 - **Check lines 120-140**.
 - **Check line 61**.
-- **Link:** [vga_bram_mul.v](https://www.google.com/search?q=https://github.com/gatecat/fabulous-mpw2-bringup/blob/main/sim/test_design/vga_bram_mul.v)
+- **Link:** [vga_bram_mul.v](https://github.com/gatecat/fabulous-mpw2-bringup/blob/main/sim/test_design/vga_bram_mul.v)
