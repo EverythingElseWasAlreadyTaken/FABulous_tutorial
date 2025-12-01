@@ -6,16 +6,24 @@
     - Follow the [FABulous Quick Start Guide](https://fabulous.readthedocs.io/en/latest/getting_started/quickstart.html) to set up your environment.
 
     - Additionally, make sure you have the FABulator graphical FPGA Editor installed.
+  
+      Make sure you have Java and Maven installed:
+  
+      ```bash
+      $ sudo apt install openjdk-17-jdk
+      $ sudo apt install maven
+      ```
+      
       You can install with the following command:
 
       ```bash
-      FABulous install-fabulator
+      $ FABulous install-fabulator
       ```
 
 2.  **Generate a Template Project:**
     - We first generate a new template project:
       ```bash
-      FABulous create-project demo`
+      $ FABulous create-project demo`
       ```
     - This creates a directory structure under `./demo/`.
 
@@ -32,11 +40,12 @@
 4.  **Build the Fabric (FABulous Shell):**
     - Start your project with the FABulous shell:
       ```bash
-      cd demo # go to your demo project folder
-      FABulous start # start the FABulous shell
+      $ cd demo # go to your demo project folder
+      $ FABulous start # start the FABulous shell
       ```
-    - Follow the steps displayed inside FABulous (starting with `load_fabric`).
+    - Follow the steps displayed inside FABulous (starting with `run_FABulous_fabric`).
       - _Tip:_ Play with `<TAB>` when entering commands; you can also fetch previous commands using the `<UP>` key.
+      - _Tip:_ The `help` shows all available commands.
 
     - **Run the build sequence:**
       1.  `FABulous> run_FABulous_fabric` (generates the fabric RTL, eFPGA_geometry and CAD tool models).
@@ -65,7 +74,12 @@
 1.  **Examine the Register File:**
     - Open a file browser and change into the `RegFile` directory under `demo/Tiles/`.
     - Open `RegFile_32x4.v` which contains the BEL (Basic Element) and study how the two configuration bits `ConfigBits` are used.
-    - Note the commented lines 17 and 18 that specify symbolic names for the configuration bits.
+        - _Note_: the commented lines 17 and 18 that specify symbolic names for the configuration bits.
+    - Take a look at the Tile CSV and swtichmatirx list file
+        - The `RegFile.csv` describes the tile interconnect
+        - The `RegFile_switch_matrix.list` describes the internal routing, the switch matrix, of the tile
+            - Can you spot how the BELs are connected?
+        - _Note_: We use include directives to define common interconnects for all tiles. -> Check the Base files!
     - You may also check the `LUT4AB` tile as another example.
 
 2.  **Understanding the Architecture:**
@@ -77,6 +91,8 @@
 3.  **Customization Task:**
     - **Goal:** Add the possibility that, depending on a **third parameter (configuration bit)**, we will return a $0$ if we read from address $0$.
     - **Rationale:** This feature would save some LUTs in case we want to implement a RISC-V CPU on our FPGA because register $0$ is hardwired to $0$ in RISC-V.
+        - _Note_: If you change the number of Config Bits in a tile, either by editing a BEL or the swtichmatrix, you have to delete the Tile ConfiMem files.
+          They will be regenerated during the next fabric generation run.
     - **Implementation Method:**
       - We could make a copy of the `RegFile` (or `LUT4AB` tile) to derive a new custom tile.
       - This would also require us to derive a new custom tile descriptor in the `fabric.csv` file.
