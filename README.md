@@ -71,7 +71,46 @@
 
 ---
 
-## 🎨 Task 2: Customizing a Tile
+## 🔍 Task 2: Understanding the nextpnr Model Files
+
+`run_fab` also writes a description of the fabric for the place-and-route tool nextpnr. It lives in the hidden folder `demo/.FABulous/`. nextpnr reads two of those files (it finds them through the `FAB_ROOT` variable):
+
+- `bel.v2.txt`: every BEL (LUT, flip-flop, I/O, RegFile, ...) with its tile, its name and its ports.
+- `pips.txt`: every PIP (programmable interconnect point), i.e. every switch-matrix connection and every wire between tiles.
+
+1.  **Find a BEL:**
+    - Search `bel.v2.txt` for the RegFile in tile `X3Y5` (look for `BelBegin,X3Y5`).
+    - Compare the listed `I`/`O` ports with the ports of `RegFile_32x4.v`. Which module ports are missing from the BEL, and why does nextpnr not need them?
+
+2.  **Read a PIP:**
+    - Every line in `pips.txt` has the format `source tile, source wire, destination tile, destination wire, delay, feature name`, for example:
+      ```
+      X3Y5,J2MID_ABa_END0,X3Y5,D0,8,J2MID_ABa_END0.D0
+      ```
+    - List all PIPs that drive the RegFile input `D0`:
+      ```bash
+      $ grep ",X3Y5,D0," .FABulous/pips.txt
+      ```
+      Find the line in `Tile/RegFile/RegFile_switch_matrix.list` that creates them.
+    - Find a PIP whose source tile differs from its destination tile. Where in the tile CSV files are these wires defined? Do they need configuration bits?
+    - _Hint (wire staging):_ A PIP between two tiles always goes to the **direct neighbour**, even for long wires. `Tile/include/Base.csv` defines `NORTH,N4BEG,0,-4,N4END,4`: 4 wires that span 4 tiles. FABulous builds this as a bundle of 4 × 4 = 16 wires (`N4BEG0`…`N4BEG15`). The bundle goes up one tile at a time, and the wire index shifts by 4 at every hop. Only `N4END0`…`N4END3`, which arrive after the 4th hop, are connected to the switch matrix. The other indices just pass through. That is why `pips.txt` shows 16 one-tile hops per tile and never a single PIP that jumps 4 tiles.
+    - _Question:_ Follow `N4BEG0` from tile `X2Y8` hop by hop:
+      ```bash
+      $ grep "^X2Y8,N4BEG0," .FABulous/pips.txt
+      ```
+      Then continue with the wire it reaches, e.g. `grep "^X2Y7,N4END12," .FABulous/pips.txt`. In which tile and on which `N4END` wire does the signal reach a switch matrix? How many tiles has it travelled?
+    - _Note (coordinates):_ The Y axis points **downwards**. `X0Y0` is the top-left tile (see the first line of `bel.v2.txt`), and the row numbers follow the line order in `fabric.csv`. Going north therefore makes Y **smaller**: that is why `Base.csv` uses the offset `-4` for `N4BEG`, and why the wire from `X2Y8` arrives in `X2Y7`.
+    - _Note (staging in the RTL):_ In the generated tile Verilog (`Tile/LUT4AB/LUT4AB.v`) the index shift happens **inside** the tile (`assign N4BEG_i[15-4:0] = N4END_i[15:4];`), and the tile output `N4BEG[i]` connects to `N4END[i]` of the neighbour. `pips.txt` describes the same connections differently: the shift is on the hop between tiles (`X2Y8,N4BEG0` → `X2Y7,N4END12`), followed by a pass-through PIP with the same index inside the tile (`N4END12` → `N4BEG12`). Both views connect the same wires.
+
+3.  **From nextpnr back to the bitstream:**
+    - Open `user_design/sequential_16bit_en.fasm`. Pick a routing line such as `X1Y8.LC_O.N1BEG0` and find the matching PIP in `pips.txt`.
+    - The FASM file is just the list of PIP and BEL features that nextpnr switched on. `bit_gen` uses `.FABulous/bitStreamSpec.csv` to turn every feature into configuration bits.
+
+- _Question:_ What happens to these files when you remove CLB columns, as you did in Task 1?
+
+---
+
+## 🎨 Task 3: Customizing a Tile
 
 1.  **Examine the Register File:**
     - Open a file browser and change into the `RegFile` directory under `demo/Tile/`.
