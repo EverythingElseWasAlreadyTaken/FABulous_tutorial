@@ -1,26 +1,62 @@
 # 📚 FABulous Tutorial
 
+## ⚙️ Setup
+
+Follow the steps below (based on the [FABulous Quick Start Guide](https://fabulous.readthedocs.io/en/latest/getting_started/quickstart.html)) to set up your environment.
+
+1.  **Platform Notes:**
+    - **Windows:** FABulous is not officially supported on native Windows. Use [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) with Ubuntu and run every command of this tutorial inside the WSL shell. FABulator is a GUI app, so it needs WSLg (Windows 11 or an up-to-date Windows 10).
+    - **Last resort: GitHub Codespaces.** If you cannot get a local (or WSL) installation to work, you can use FABulous in the browser with [GitHub Codespaces](https://fabulous.readthedocs.io/en/latest/getting_started/codespaces.html). FABulous is pre-installed there, and GUI tools open in a web VNC viewer on port `6080`. Only use this as a fallback: the cloud machine is small (2-4 cores by default), so it can be slow and unstable, and it suspends after 30 minutes without activity.
+
+2.  **Install FABulous:**
+    - Install `uv` (if you don't have it already), then install `fabulous-fpga` and expose the executables from `fabulous-bit-gen` and `go-task-bin`:
+      ```bash
+      # Install uv (Linux/macOS)
+      curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      # Install FABulous and expose bit_gen and task executables
+      uv tool install fabulous-fpga --with-executables-from fabulous-bit-gen,go-task-bin --python 3.12
+      ```
+      - _Note:_ `--with-executables-from` ensures that `bit_gen` and `task` (from `fabulous-bit-gen` and `go-task-bin`) are installed on your `PATH` alongside `FABulous`.
+      - If you already have `pipx` installed, `pipx install fabulous-fpga` (plus `pipx inject --include-apps` or separate installs for `go-task-bin` and `fabulous-bit-gen`) works as well.
+    - Verify the installation:
+      ```bash
+      FABulous --version
+      ```
+    - _Tip:_ See the [FABulous Installation Guide](https://fabulous.readthedocs.io/en/latest/getting_started/installation.html) for alternative methods (venv, Docker, Nix) and platform-specific instructions.
+
+3.  **Install CAD Tools:**
+    - FABulous requires `Yosys` and `nextpnr-generic` for synthesis and place-and-route. The easiest way to install them is through the bundled installer:
+      ```bash
+      FABulous install oss-cad-suite
+      ```
+    - This installs the **OSS CAD Suite**, which includes Yosys, nextpnr, simulators, and all other required tools. VHDL users will also get `ghdl` and the `ghdl-yosys-plugin` through this installer. For manual installation or more details, see [CAD tool installation](https://fabulous.readthedocs.io/en/latest/getting_started/cad_tools.html).
+    - **Warning:** Do **not** use the latest nightly build of Yosys. Nightly builds after **29 June** are **not** compatible with current FABulous and will fail. Install Yosys **0.66**, or any build dated **before 29 June**, instead.
+
+4.  **Install FABulator (Graphical FPGA Editor):**
+    - Make sure you have Java and Maven installed:
+      ```bash
+      sudo apt install openjdk-17-jdk
+      sudo apt install maven
+      ```
+    - Install FABulator with:
+      ```bash
+      FABulous install fabulator ~/tools   # any install directory
+      ```
+
+### Troubleshooting
+
+- **`command not found` errors:** After installing `uv`, `FABulous`, or the OSS CAD Suite, your current shell may not pick up the updated `PATH` right away. Reload your shell environment by opening a new terminal or running:
+  ```bash
+  source ~/.bashrc   # or: source ~/.zshrc
+  ```
+
+---
+
 ## 🛠️ Task 1: Start FABulous and Build a First Fabric
 
 1.  **Preparation (Directory and Environment):**
-    - Follow the [FABulous Quick Start Guide](https://fabulous.readthedocs.io/en/latest/getting_started/quickstart.html) to set up your environment.
-
-    - **Windows:** FABulous is not officially supported on native Windows. Use [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) with Ubuntu and run every command of this tutorial inside the WSL shell. FABulator is a GUI app, so it needs WSLg (Windows 11 or an up-to-date Windows 10).
-
-    - Additionally, make sure you have the FABulator graphical FPGA Editor installed.
-  
-      Make sure you have Java and Maven installed:
-  
-      ```bash
-      $ sudo apt install openjdk-17-jdk
-      $ sudo apt install maven
-      ```
-      
-      You can install with the following command:
-
-      ```bash
-      $ FABulous install fabulator ~/tools   # any install directory
-      ```
+    - Make sure you have completed the **Setup** chapter above before continuing.
 
 2.  **Generate a Template Project:**
     - We first generate a new template project:
